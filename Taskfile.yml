@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  init:
+    cmds:
+      - git submodule update
+      - make -C gnu-efi
+      - make -C gnu-efi/lib
+      - make -C gnu-efi/gnuefi
+      - mkdir build
+
+  build:
+    cmds:
+      - clang-17 -c -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -MMD -std=c++23 -target x86_64-unknown-windows src/*.cpp -Ignu-efi/inc -o build/module.o
+      - lld-link-17 build/module.o -nodefaultlib -nxcompat:no -dll -subsystem:efi_application -entry:EfiMain -out:root/efi/boot/bootx64.efi
+
+  run:
+    deps: [build]
+    cmds:
+      - sudo qemu-system-x86_64 -drive if=pflash,format=raw,file=/usr/share/qemu/OVMF.fd -drive format=raw,file=fat:rw:root -net none
