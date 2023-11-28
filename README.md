@@ -1,5 +1,7 @@
 ## Usage
 ```sh
+git submodule update
+
 # Windows:
 cmake . -B build -T ClangCL
 
