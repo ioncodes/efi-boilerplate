@@ -14,7 +14,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 include_directories(gnu-efi/inc)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".efi")
 
-if(MSVC)
+if(WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:wchar_t- /GS- /EHs- /Gm- /EHsc- /EHa- /GR- /DWIN32- /D_WINDOWS-")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:wchar_t- /GS- /EHs- /Gm- /EHsc- /EHa- /GR- /DWIN32- /D_WINDOWS-")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /nodefaultlib /entry:EfiMain /subsystem:efi_application /nxcompat:no /manifestuac:no /manifest:no /dynamicbase:no")
@@ -22,7 +22,11 @@ else()
     set(CMAKE_C_COMPILER "clang")
     set(CMAKE_CXX_COMPILER "clang++")
     
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld-link -target x86_64-unknown-windows -mno-red-zone -short-wchar -fno-stack-protector -fno-exceptions -fno-rtti -DWIN32 -D_WINDOWS")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld-link -target x86_64-unknown-windows -mno-red-zone -fshort-wchar -fno-stack-protector -fno-exceptions -fno-rtti -DWIN32 -D_WINDOWS")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld-link -ffreestanding -target x86_64-unknown-windows -mno-red-zone -short-wchar -fno-stack-protector -fno-exceptions -fno-rtti -DWIN32 -D_WINDOWS")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffreestanding -fuse-ld=lld-link -target x86_64-unknown-windows -mno-red-zone -fshort-wchar -fno-stack-protector -fno-exceptions -fno-rtti -DWIN32 -D_WINDOWS")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld-link -nostdlib -Wl,-subsystem:efi_application -Wl,-entry:EfiMain")
 endif()
+
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy "${EXECUTABLE_OUTPUT_PATH}${PROJECT_NAME}.efi" ../root/efi/boot/bootx64.efi
+# )
