@@ -1,5 +1,6 @@
 ## Usage
 ```sh
+git submodule init
 git submodule update
 
 # Windows:
